@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1552696312 source:/home/matmark/Pulpit/test/test/main.cpp
+	<iostream>
+	<ncurses.h>
+	<thread>
+	<unistd.h>
+

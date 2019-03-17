@@ -3,14 +3,13 @@
 #include <unistd.h>
 #include <cmath>
 #include <vector>
+#include <random>
 
 #define KULKA 'o'
-#define refresh_kulki 100000
+#define refresh_kulki 50000
 #define refresh_ekranu 10000
 #define min_speed 0.2f
 #define liczba_kulek 8
-
-class Ball;
 
 struct point {
     int x;
@@ -27,7 +26,8 @@ struct speed {
     float sY;
 };
 
-//deklaracje funkcji
+//deklaracje
+class Ball;
 speed randDirection();
 void init();
 void print();
@@ -35,6 +35,9 @@ void addBall();
 void addThread();
 
 //zmienne globalne
+unsigned long seed = (unsigned long)(time(nullptr)); //ziarno do losowania liczb
+std::mt19937_64 rng(seed); //generator liczb losowych
+std::uniform_int_distribution<int> randInt(-3, 3);
 point max_size = {0, 0};
 point start = {0, 1};
 std::vector < Ball > balls;
@@ -129,7 +132,6 @@ private:
 //funkcja inicjalizująca
 void init()
 {
-    srand (time(NULL));
     initscr();
     curs_set(0);
     getmaxyx( stdscr, max_size.y, max_size.x );
@@ -145,15 +147,15 @@ void print()
         usleep(refresh_ekranu);
         clear();
 
-        for(int i = 0; i < ballsThreads.size(); i++) balls.at(i).show();
+        for(unsigned int i = 0; i < ballsThreads.size(); i++) balls.at(i).show();
     }
 }
 
 //funkcja losująca kierunek (prędkość)
 speed randDirection()
 {
-    speed dir;
-    dir.sX = (float) (rand() % 7 - 3)*2;
+    speed dir = {0,0};
+    dir.sX = (float) randInt(rng);
     //dir.sY = (float) (rand() % 7 - 3); //więcej niż 7 kierunków
     dir.sY = (float) (2);
     //if (dir.sX == 0) dir.sX = (float) (rand() % 7 - 3); //żeby nie leciała w poziomie
@@ -172,15 +174,15 @@ int main(int argc, char* argv[])
     init();
 
     //dodawanie kulek do wektora
-    for(int i = 0; i < liczba_kulek; i ++) addBall();
+    for(unsigned int i = 0; i < liczba_kulek; i ++) addBall();
 
     //tworzenie wątków
     std::thread thScreen(print);
-    for(int i = 0; i < liczba_kulek; i ++) { addThread(); sleep(1); }
+    for(unsigned int i = 0; i < liczba_kulek; i ++) { addThread(); sleep(1); }
 
     //łączenie wątków
     thScreen.join();
-    for(int i = 0; i < liczba_kulek; i ++) ballsThreads.at(i).join();
+    for(unsigned int i = 0; i < liczba_kulek; i ++) ballsThreads.at(i).join();
 
     endwin();
     return 0;

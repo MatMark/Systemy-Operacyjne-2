@@ -1,4 +1,3 @@
-#include <iostream>
 #include <ncurses.h>
 #include <thread>
 #include <unistd.h>
@@ -6,9 +5,14 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
+#include <stdlib.h>
+#include <time.h>
 
 #define KULKA 'o'
+#define refresh_kulki 50000
+#define refresh_ekranu 10000
 #define min_speed 0.2f
+#define liczba_kulek 8
 
 class Ball;
 
@@ -27,16 +31,23 @@ struct speed {
     float sY;
 };
 
+//deklaracje funkcji
+speed randDirection();
+void init();
+void print();
+
 //zmienne globalne
 point max_size = {0, 0};
 point start = {0, 1};
 std::vector < Ball > balls;
+std::vector < std::thread > ballsThreads;
+bool end = false;
 
 class Ball{
 public:
     //---KONSTRUKTORY---
     Ball() = default;
-    Ball(point start, speed nSpeed) { act_position.x = start.x; act_position.y = start.y; act_speed = nSpeed; }
+    Ball(speed nSpeed) { act_position.x = start.x; act_position.y = start.y; act_speed = nSpeed; }
 
     //---GET/SET---
 
@@ -91,7 +102,8 @@ public:
     }
 
     //metoda sprawdzająca czy prędkość x i y jest większa niż min_speed
-    bool checkSpeed(){ return std::fabs(getSpeedX()) >= min_speed && std::fabs(getSpeedY()) >= min_speed; }
+    //bool checkSpeed(){ return std::fabs(getSpeedX()) >= min_speed && std::fabs(getSpeedY()) >= min_speed; }
+    bool checkSpeed(){ return std::fabs(getSpeedY()) >= min_speed; }
 
     //metoda ruchu kulki
     void runBall()
@@ -101,9 +113,9 @@ public:
             checkBoudary();
 
             incPos();
-            usleep(100000);
+            usleep(refresh_kulki);
         }
-        setPosition(fpoint{0,0});
+        restart();
     }
 
     //metoda dodająca do wyświetlenia kulkę (zaokrągląnie i zrzutowane do int'a pozycji kulki)
@@ -115,11 +127,14 @@ private:
     void incX() { setX(getX() + getSpeedX()); } //zwiększenie x w zależności od prędkości horyzontalnej
     void incY() { setY(getY() + getSpeedY()); } //zwiększenie y w zależności od prędkości wertykalnej
     void incPos() { incX(); incY(); } //zwiększenie pozycji
+    void setStart(){ act_position.x = start.x; act_position.y = start.y; }
+    void restart(){ setStart(); setSpeed(randDirection()); runBall(); }
 };
 
 //funkcja inicjalizująca
 void init()
 {
+    srand (time(NULL));
     initscr();
     curs_set(0);
     getmaxyx( stdscr, max_size.y, max_size.x );
@@ -129,38 +144,47 @@ void init()
 //funkcja wyświetlająca
 void print()
 {
-    while (true)
+    while (!end)
     {
         refresh();
-        usleep(100000);
+        usleep(refresh_ekranu);
         clear();
-        balls.at(0).show();
-        balls.at(1).show();
-        balls.at(2).show();
+
+        for(int i = 0; i < ballsThreads.size(); i++) balls.at(i).show();
     }
 }
+
+//funkcja losująca kierunek (prędkość)
+speed randDirection()
+{
+    speed dir;
+    dir.sX = (float) (rand() % 7 - 3)*2;
+    //dir.sY = (float) (rand() % 7 - 3);
+    dir.sY = (float) (2);
+    //if (dir.sX == 0) dir.sX = (float) (rand() % 7 - 3); //żeby nie leciała w poziomie
+    //if (dir.sY == 0) dir.sY = (float) (rand() % 7 - 3); //żeby nie leciała w pionie
+    return dir;
+}
+
 
 int main(int argc, char* argv[])
 {
     init();
 
     //dodawanie kulek do wektora
-    balls.emplace_back(Ball(start, speed {4.f, 2.f}));
-    balls.emplace_back(Ball(start, speed {-4.f, 3.f}));
-    balls.emplace_back(Ball(start, speed {1.f, 5.f}));
+    for(int i = 0; i < liczba_kulek; i ++) balls.emplace_back(Ball(randDirection()));
 
     //tworzenie wątków
     std::thread thScreen(print);
-    std::thread th0(&Ball::runBall, std::ref(balls.at(0)));
-    std::thread th1(&Ball::runBall, std::ref(balls.at(1)));
-    std::thread th2(&Ball::runBall, std::ref(balls.at(2)));
+    for(int i = 0; i < liczba_kulek; i ++)
+    {
+        ballsThreads.emplace_back(&Ball::runBall, std::ref(balls.at(i)));
+        sleep(1);
+    }
 
     //łączenie wątków
     thScreen.join();
-    th0.join();
-    th1.join();
-    th2.join();
-
+    for(int i = 0; i < liczba_kulek; i ++) ballsThreads.at(i).join();
     endwin();
     return 0;
 }

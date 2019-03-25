@@ -200,7 +200,8 @@ int main(int argc, char* argv[])
 
     //tworzenie kulek
     std::thread thScreen(print);
-    for(unsigned int i = 0; i < liczba_kulek; i ++) { addBall(); addThread(); }
+    //for(unsigned int i = 0; i < liczba_kulek; i ++) { addBall(); addThread(); } //zadana liczba kulek
+    while(!end) { addBall(); addThread(); } //tworzenie nowych w czasie rzeczywistym
 
     thScreen.join();
 

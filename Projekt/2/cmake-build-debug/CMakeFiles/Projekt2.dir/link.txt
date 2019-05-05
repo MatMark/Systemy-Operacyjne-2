@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/Projekt2.dir/main.cpp.o  -o Projekt2 -lcurses -lpthread 

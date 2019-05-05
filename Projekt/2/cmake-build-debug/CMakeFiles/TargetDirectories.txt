@@ -1,0 +1,3 @@
+/home/matmark/Pulpit/SO2/Projekt2/2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/matmark/Pulpit/SO2/Projekt2/2/cmake-build-debug/CMakeFiles/Projekt2.dir
+/home/matmark/Pulpit/SO2/Projekt2/2/cmake-build-debug/CMakeFiles/edit_cache.dir

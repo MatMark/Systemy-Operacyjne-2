@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/matmark/Pulpit/SO2/Projekt2/2/main.cpp
+iostream
+-
+ncurses.h
+-
+thread
+-
+unistd.h
+-
+vector
+-
+random
+-
+mutex
+-
+

@@ -24,6 +24,7 @@ Room *dinning = new Room(0,0,35,7, "Jadalnia");
 Room *dishwasher = new Room(0,0,15,7, "Zmywak");
 Room *corridor;
 bool end = false;                                       //flaga zakończenia programu
+bool closing = true;                                   //flaga kończenia wątków
 
 void init();                                    //funkcja inicjalizująca
 void print();                                   //funkcja wyświetlająca
@@ -92,6 +93,20 @@ void print()
         exitedClients();
         usleep(100000);
     }
+    while (closing) {
+        clear();
+        mvprintw(max_size.y/2, max_size.x/2-7, "Zamykanie .  ");
+        refresh();
+        usleep(500000);
+        clear();
+        mvprintw(max_size.y/2, max_size.x/2-7, "Zamykanie .. ");
+        refresh();
+        usleep(500000);
+        clear();
+        mvprintw(max_size.y/2, max_size.x/2-7, "Zamykanie ...");
+        refresh();
+        usleep(500000);
+    }
 }
 
 //funkcja sprawdzająca ESC
@@ -124,11 +139,11 @@ void exitedClients(){
 //funkcja myjąca talerze
 void cleaningPlate(Room * dish, Room * kit){
     while(!end){
-     if(dish->plates>0){
-      sleep(C_TIME);
-      dish->plates--;
-      kit->plates++;
-     }else sleep(1);
+        if(dish->plates>0){
+          sleep(C_TIME);
+          dish->plates--;
+          kit->plates++;
+        }else sleep(1);
     }
 }
 
@@ -174,7 +189,7 @@ int main(int argc, char **argv) {
 
     //po naciśnięciu ESC
     ending.join();
-    screen.join();
+
     cleaner.join();
     foodGiver.join();
     dinQueue.join();
@@ -187,11 +202,13 @@ int main(int argc, char **argv) {
 
     exitedClients();
 
-    for (auto &client : thClients) {
-        client->join();
-    }
-    clients.clear();
-    thClients.clear();
+//    for (auto &client : thClients) {
+//        client->join();
+//    }
+//    clients.clear();
+//    thClients.clear();
+    closing=false;
+    screen.join();
 
     endwin();
     return 0;

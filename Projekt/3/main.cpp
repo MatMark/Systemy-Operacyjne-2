@@ -66,7 +66,7 @@ void print()
         touchwin(kit);
         mvwprintw(kit, 1, 1, kitchen->getName());
         mvwprintw(kit, 2, 1, "W kolejce: %d", kitchen->clients);
-        mvwprintw(kit, 3, 1, "Talerzy: %d", kitchen->plates);
+        mvwprintw(kit, 3, 1, "Talerzy: %d/%d", kitchen->plates, PLATES);
         wrefresh(kit);
 
         WINDOW *din = newwin(dinning->verticalSize, dinning->horizontalSize, dinning->y,
@@ -74,7 +74,7 @@ void print()
         box(din, 0, 0);
         touchwin(din);
         mvwprintw(din, 1, 1, dinning->getName());
-        mvwprintw(din, 2, 1, "Jedzacych: %d", dinning->clients);
+        mvwprintw(din, 2, 1, "Jedzacych: %d/%d", dinning->clients, TABLES);
         mvwprintw(din, 3, 1, "Czekajacych: %d", dinning->inQueue);
         wrefresh(din);
 
@@ -82,7 +82,7 @@ void print()
         box(dish, 0, 0);
         touchwin(dish);
         mvwprintw(dish, 1, 1, dishwasher->getName());
-        mvwprintw(dish, 2, 1, "Talerzy: %d", dishwasher->plates);
+        mvwprintw(dish, 2, 1, "Talerzy: %d/%d", dishwasher->plates, PLATES);
         wrefresh(dish);
 
         WINDOW *cor = newwin(corridor->verticalSize, corridor->horizontalSize, corridor->y, corridor->x);
